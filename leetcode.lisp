@@ -100,20 +100,20 @@
                    for substring = (subseq s start (+ start length))
                    when (palindrome-p substring)
                      do (return-from main substring)))))
-;;; TODO: problem 6
+;;; problem 6
 (defun zigzag-conversion (s num-rows)
-  (loop with counter = 0
-        with num-columns = (floor (length s) num-rows)
-        with zigzag = (make-array (list num-columns num-rows)
-                                  :initial-element nil)
-        for i below num-columns
-        do (loop for j below num-rows
-                 do (setf (aref zigzag i j) (char s counter)
-                          counter (1+ counter)))
-        finally (return (with-output-to-string (result)
-                          (destructuring-bind (x y) (array-dimensions zigzag)
-                            (loop for a below y
-                                  do (loop for b below x
-                                           for char = (aref zigzag b a)
-                                           when char
-                                             do (princ char result))))))))
+  (when (= num-rows 1)
+    (return-from zigzag-conversion s))
+  (let* ((length (length s))
+         (result (make-array length :element-type 'character :fill-pointer 0))
+         (step (- (* 2 num-rows) 2))) ; skip this many characters per pass
+    (loop for i below num-rows
+          do (loop for j from i below length by step
+                   do (vector-push (schar s j) result)
+                      (let ((second-index (- (+ j step) (* 2 i))))
+                        (and (< 0 i (1- num-rows))
+                             (< second-index length)
+                             (vector-push (schar s second-index) result)))))))
+;;; problem 7
+(defun reverse-integer (x)
+  )
