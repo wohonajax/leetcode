@@ -49,7 +49,8 @@
                                (= 1 (count c substring :test #'char=)))
                              substring)
                    do (return-from main substring))))
-;;; problem 3 but more efficient (translated from elsewhere)
+;;; problem 3 but more efficient
+;;; translated from https://github.com/kamyu104/LeetCode-Solutions, MIT license
 (defun longest-substring-without-repeating-characters (s)
   (loop with result = 0
         with left-index = 0
@@ -82,15 +83,15 @@
   (labels ((palindrome-p (substring)
              ;; for "abcdefg" check if a = g
              ;; if yes, check if "bcdef" is a palindrome
-             (let* ((length (length substring))
+             (let* ((length (length str))
                     (final-index (1- length))
-                    (ends-match-p (char= (char substring 0)
-                                         (char substring final-index))))
-               (cond ((= length 2) ends-match-p)
-                     ((= length 1) t)
-                     (t (and ends-match-p
-                             (palindrome-p
-                              (subseq substring 1 final-index))))))))
+                    (two-p (= length 2))
+                    (one-p (= length 1)))
+               (cond (two-p (char= (schar str 0) (schar str 1)))
+                     (one-p t)
+                     ((char= (schar str 0) (schar str final-index))
+                      (palindrome-p (subseq str 1 final-index)))
+                     (t nil)))))
     ;; check every substring of a given length,
     ;; then every substring of length - 1, etc.
     (loop named main
@@ -101,6 +102,8 @@
                    when (palindrome-p substring)
                      do (return-from main substring)))))
 ;;; problem 6
+;;; modified from https://github.com/rrcgat/LeetCode, MIT license
+;;; and from https://github.com/kamyu104/LeetCode-Solutions, MIT license
 (defun zigzag-conversion (s num-rows)
   (when (= num-rows 1)
     (return-from zigzag-conversion s))
@@ -113,7 +116,56 @@
                       (let ((second-index (- (+ j step) (* 2 i))))
                         (and (< 0 i (1- num-rows))
                              (< second-index length)
-                             (vector-push (schar s second-index) result)))))))
+                             (vector-push (schar s second-index) result)))))
+    result))
 ;;; problem 7
+(defun reverse-integer-hairy (x)
+  (let ((negative-p (minusp x))
+        (limit (expt 2 31)))
+    (flet ((switch-digits (num)
+             (nreverse
+               (if negative-p
+                   (subseq (format nil "~A" num) 1) ; drop the "-"
+                   (format nil "~A" num)))))
+      (let ((result
+              (if negative-p
+                  (- (parse-integer (switch-digits x)))
+                  (parse-integer (switch-digits x)))))
+        (cond ((< result (- limit))  0)
+              ((> result (1- limit)) 0)
+              (t result))))))
+;;; problem 7 (modified from https://github.com/rrcgat/LeetCode, MIT license)
 (defun reverse-integer (x)
-  )
+  (let ((limit (expt 2 31))
+          (result (if (plusp x)
+                      (parse-integer (nreverse (write-to-string x)))
+                      (- (parse-integer
+                           (nreverse (write-to-string (abs x))))))))
+      (cond ((< result (- limit))  0)
+            ((> result (1- limit)) 0)
+            (t result))))
+;;; problem 8
+(defun my-a-to-i (s)
+  (let* ((result (parse-integer s :junk-allowed t))
+         (limit (expt 2 31))
+         (upper-limit (1- limit))
+         (lower-limit (- limit)))
+    (cond ((null result) 0)
+          ((< result lower-limit) lower-limit)
+          ((> result upper-limit) upper-limit)
+          (t result))))
+;;; problem 9 TODO: don't convert to string
+(defun palindrome-number (x)
+  (labels ((palindrome-p (str)
+             (let* ((length (length str))
+                    (final-index (1- length))
+                    (two-p (= length 2))
+                    (one-p (= length 1)))
+               (cond (two-p (char= (schar str 0) (schar str 1)))
+                     (one-p t)
+                     ((char= (schar str 0) (schar str final-index))
+                      (palindrome-p (subseq str 1 final-index)))
+                     (t nil)))))
+    (palindrome-p (write-to-string x))))
+;;; problem 10
+(defun regular-expression-matching (s p))
