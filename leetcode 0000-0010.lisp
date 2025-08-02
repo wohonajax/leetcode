@@ -134,7 +134,8 @@
         (cond ((< result (- limit))  0)
               ((> result (1- limit)) 0)
               (t result))))))
-;;; problem 7 (modified from https://github.com/rrcgat/LeetCode, MIT license)
+;;; problem 7
+;;; modified from https://github.com/rrcgat/LeetCode, MIT license
 (defun reverse-integer (x)
   (let ((limit (expt 2 31))
           (result (if (plusp x)
