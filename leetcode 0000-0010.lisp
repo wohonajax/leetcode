@@ -79,18 +79,18 @@
          (total-length (+ length1 length2)))
     ))
 ;;; problem 5
-(defun longest-palindromic-substring (s)
+(defun longest-palindromic-substring-recursive (s)
   (labels ((palindrome-p (substring)
              ;; for "abcdefg" check if a = g
              ;; if yes, check if "bcdef" is a palindrome
-             (let* ((length (length str))
+             (let* ((length (length substring))
                     (final-index (1- length))
                     (two-p (= length 2))
                     (one-p (= length 1)))
-               (cond (two-p (char= (schar str 0) (schar str 1)))
+               (cond (two-p (char= (schar substring 0) (schar substring 1)))
                      (one-p t)
-                     ((char= (schar str 0) (schar str final-index))
-                      (palindrome-p (subseq str 1 final-index)))
+                     ((char= (schar substring 0) (schar substring final-index))
+                      (palindrome-p (subseq substring 1 final-index)))
                      (t nil)))))
     ;; check every substring of a given length,
     ;; then every substring of length - 1, etc.
@@ -101,6 +101,16 @@
                    for substring = (subseq s start (+ start length))
                    when (palindrome-p substring)
                      do (return-from main substring)))))
+;;; problem 5 with a different palindrome check
+;;; the recursive version seems to be more efficient,
+;;; probably because REVERSE creates a whole new substring copy
+(defun longest-palindromic-substring (s)
+  (loop named main with total-length = (length s)
+        for length = total-length then (1- length)
+        do (loop for start upto (- total-length length)
+                 for substring = (subseq s start (+ start length))
+                 when (string= substring (reverse substring))
+                   do (return-from main substring))))
 ;;; problem 6
 ;;; modified from https://github.com/rrcgat/LeetCode, MIT license
 ;;; and from https://github.com/kamyu104/LeetCode-Solutions, MIT license
@@ -173,5 +183,15 @@
 (defun palindrome-number (x)
   (let ((str (write-to-string x)))
     (string= str (reverse str))))
-;;; problem 10
-(defun regular-expression-matching (s p))
+;;; TODO: problem 10
+(defun regular-expression-matching (s p)
+  (macrolet ((acond (&rest clauses)
+               (when clauses
+                 `(let ((it ,(first (first clauses))))
+                    (if it
+                        (progn ,@(rest (first clauses)))
+                        (acond ,@(rest clauses)))))))
+    (flet ((truep (test) (not (null test))))
+      (acond ((position #\. p) )
+             ((position #\* p) )
+             (t (string= s p))))))
