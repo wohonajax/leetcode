@@ -156,7 +156,7 @@
           ((> result upper-limit) upper-limit)
           (t result))))
 ;;; problem 9 TODO: don't convert to string
-(defun palindrome-number (x)
+(defun palindrome-number-recursive (x)
   (labels ((palindrome-p (str)
              (let* ((length (length str))
                     (final-index (1- length))
@@ -168,5 +168,10 @@
                       (palindrome-p (subseq str 1 final-index)))
                      (t nil)))))
     (palindrome-p (write-to-string x))))
+;;; problem 9
+;;; modified from https://github.com/rrcgat/LeetCode, MIT license
+(defun palindrome-number (x)
+  (let ((str (write-to-string x)))
+    (string= str (reverse str))))
 ;;; problem 10
 (defun regular-expression-matching (s p))
