@@ -183,15 +183,49 @@
 (defun palindrome-number (x)
   (let ((str (write-to-string x)))
     (string= str (reverse str))))
-;;; TODO: problem 10
+;;; problem 10
+;;; pretty much copied from https://github.com/rrcgat/LeetCode, MIT license
+;;; FIXME: * doesn't work right
 (defun regular-expression-matching (s p)
-  (macrolet ((acond (&rest clauses)
-               (when clauses
-                 `(let ((it ,(first (first clauses))))
-                    (if it
-                        (progn ,@(rest (first clauses)))
-                        (acond ,@(rest clauses)))))))
-    (flet ((truep (test) (not (null test))))
-      (acond ((position #\. p) )
-             ((position #\* p) )
-             (t (string= s p))))))
+  (let ((table (make-hash-table :test #'equal)))
+    (labels ((match (string pattern)
+               (let ((key (list string pattern)))
+                 (multiple-value-bind (value presentp)
+                     (gethash key table)
+                   (if presentp
+                       value
+                       (progn  ;; a "" pattern can only match a "" string
+                         (cond ((string= pattern "")
+                                (setf (gethash key table) (string= string "")))
+                               ;; if the string is "" and the pattern isn't,
+                               ;; only match a pattern of *'s
+                               ;; since * can match 0 characters
+                               ((string= string "")
+                                (setf (gethash key table)
+                                      (and (= (position #\* pattern) 1)
+                                           (match string (subseq pattern 2)))))
+                               ;; if the string has characters, check if
+                               ;; the first character of the pattern is *
+                               ;; and if so, either match the whole string to
+                               ;; the rest of the pattern (since * can match 0
+                               ;; characters), or match the rest of the string
+                               ;; to the same pattern, consuming the first
+                               ;; character and matching it to an unconsumed *
+                               ((eql (position #\* pattern) 1)
+                                (setf (gethash key table)
+                                      (or (match string (subseq pattern 2))
+                                          (match (subseq string 1) pattern))))
+                               ;; if the first character of the pattern is .
+                               ;; OR if the first character of the string
+                               ;; matches the first character of the pattern,
+                               ;; match the rest of the string to the rest of
+                               ;; the pattern
+                               ((or (char= (schar pattern 0) #\.)
+                                    (char= (schar pattern 0) (schar string 0)))
+                                (setf (gethash key table)
+                                      (match (subseq string 1)
+                                             (subseq pattern 1))))
+                               ;; if there's no match, return false
+                               (t (setf (gethash key table) nil)))
+                         (gethash key table)))))))
+      (match s p))))
