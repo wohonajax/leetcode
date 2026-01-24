@@ -73,11 +73,42 @@
               (aref new-vector (1- halfway-point)))
            2))))
 ;;; problem 4 more efficiently TODO: O(log(n+m)), without merging
+;;; explanation of solution at <https://algo.monster/liteproblems/4>
 (defun median-of-two-sorted-arrays (nums1 nums2)
   (let* ((length1 (length nums1))
          (length2 (length nums2))
-         (total-length (+ length1 length2)))
-    ))
+         (total-length (+ length1 length2))
+         ;; these 2 indices are the same when total-length is odd
+         ;; averaging them gives us the median in either case
+         (lower-median-index (/ (1+ total-length) 2))
+         (upper-median-index (/ (+ 2 total-length) 2)))
+    (labels ((find-kth-smallest-element (i j k)
+               (cond ((< i length1) (aref nums2 (1- (+ j k))))
+                     ((< j length2) (aref nums1 (1- (+ i k))))
+                     ((= k 1) (min (aref nums1 i)
+                                   (aref nums2 j)))
+                     (t (let* ((p (/ k 2))
+                               (nums1p (let ((index (1- (+ i p))))
+                                         (when (< index length1)
+                                           (aref nums1 index))))
+                               (nums2p (let ((index (1- (+ j p))))
+                                         (when (< index length2)
+                                           (aref nums2 index)))))
+                                ;; remove the p smallest elements from nums1
+                                ;; since it contains the smaller element
+                          (cond ((and nums1p nums2p (< nums1p nums2p))
+                                 (find-kth-smallest-element (+ i p) j (- k p)))
+                                ;; remove the p smallest elements from nums2
+                                ;; since it contains the smaller element
+                                ((and nums1p nums2p (>= nums1p nums2p))
+                                 (find-kth-smallest-element i (+ j p) (- k p)))
+                                ;; out of bounds for nums2, eliminate from nums1
+                                (nums1p (find-kth-smallest-element (+ i p) j (- k p)))
+                                ;; out of bounds for nums1, eliminate from nums2
+                                (t (find-kth-smallest-element i (+ j p) (- k p)))))))))
+      (/ (+ (find-kth-smallest-element 0 0 lower-median-index)
+            (find-kth-smallest-element 0 0 upper-median-index))
+         2))))
 ;;; problem 5
 (defun longest-palindromic-substring-recursive (s)
   (labels ((palindrome-p (substring)
