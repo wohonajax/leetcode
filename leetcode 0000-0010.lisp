@@ -87,6 +87,8 @@
                      ((< j length2) (aref nums1 (1- (+ i k))))
                      ((= k 1) (min (aref nums1 i)
                                    (aref nums2 j)))
+                     ;; find the (k/2)th smallest element
+                     ;; in half of the search space
                      (t (let* ((p (/ k 2))
                                (nums1p (let ((index (1- (+ i p))))
                                          (when (< index length1)
