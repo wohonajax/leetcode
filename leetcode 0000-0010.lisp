@@ -72,7 +72,7 @@
         (/ (+ (aref new-vector halfway-point)
               (aref new-vector (1- halfway-point)))
            2))))
-;;; problem 4 more efficiently TODO: O(log(n+m)), without merging
+;;; problem 4 more efficiently
 ;;; explanation of solution at <https://algo.monster/liteproblems/4>
 (defun median-of-two-sorted-arrays (nums1 nums2)
   (let* ((length1 (length nums1))
