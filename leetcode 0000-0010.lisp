@@ -196,7 +196,7 @@
           ((< result lower-limit) lower-limit)
           ((> result upper-limit) upper-limit)
           (t result))))
-;;; problem 9 TODO: don't convert to string
+;;; problem 9
 (defun palindrome-number-recursive (x)
   (labels ((palindrome-p (str)
              (let* ((length (length str))
@@ -207,6 +207,18 @@
                       (palindrome-p (subseq str 1 final-index)))
                      (t nil)))))
     (palindrome-p (write-to-string x))))
+;;; problem 9
+(defun palindrome-number-without-string (n)
+  (loop with temp = n
+        with reverse = 0
+        until (zerop temp)
+        ;; increase reverse by pushing a digit
+        ;; and adding the digit from temp
+        do (setf reverse (+ (* reverse 10) (mod temp 10))
+                 ;; use floor to ensure exactly one digit
+                 ;; is removed and avoid rationals
+                 temp (floor temp 10))
+        finally (return (= reverse n))))
 ;;; problem 9
 ;;; modified from https://github.com/rrcgat/LeetCode, MIT license
 (defun palindrome-number (x)
