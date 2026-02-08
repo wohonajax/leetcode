@@ -26,11 +26,14 @@
 ;;; problem 12
 ;;; TODO: use math rather than just built-in functionality
 (defun integer-to-roman-algorithm (num)
-  (with-output-to-string (str)
-    (let ((num-string (write-to-string num)))
-      (cond ((or (char= (schar num-string 0) #\4)
-                 (char= (schar num-string 0) #\9))
-             )))))
+  (let ((roman-values (list 1000 900 500 400 100 90 50 40 10 9 5 4 1))
+        (roman-strings (list "M" "CM" "D" "CD" "C" "XC" "L" "XL" "X" "IX" "V" "IV" "I")))
+    (with-output-to-string (str)
+      (loop for v in roman-values
+            for s in roman-strings
+            do (loop while (>= num v)
+                     do (decf num v)
+                        (princ s str))))))
 ;;; problem 12
 (defun integer-to-roman (num)
   (format nil "~@R" num))
