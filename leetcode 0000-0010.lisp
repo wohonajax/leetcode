@@ -226,8 +226,7 @@
     (string= str (reverse str))))
 ;;; problem 10
 ;;; pretty much copied from https://github.com/rrcgat/LeetCode, MIT license
-;;; FIXME: * doesn't work right
-(defun regular-expression-matching (s p)
+(defun regular-expression-matching-wrong (s p)
   (let ((table (make-hash-table :test #'equal)))
     (labels ((match (string pattern)
                (let ((key (list string pattern)))
@@ -243,7 +242,7 @@
                                ;; since * can match 0 characters
                                ((string= string "")
                                 (setf (gethash key table)
-                                      (and (= (position #\* pattern) 1)
+                                      (and (eql (position #\* pattern) 1)
                                            (match string (subseq pattern 2)))))
                                ;; if the string has characters, check if
                                ;; the first character of the pattern is *
@@ -252,6 +251,8 @@
                                ;; characters), or match the rest of the string
                                ;; to the same pattern, consuming the first
                                ;; character and matching it to an unconsumed *
+                               ;; BUG: matches any character preceding a *,
+                               ;; not just actual matches
                                ((eql (position #\* pattern) 1)
                                 (setf (gethash key table)
                                       (or (match string (subseq pattern 2))
@@ -269,4 +270,30 @@
                                ;; if there's no match, return false
                                (t (setf (gethash key table) nil)))
                          (gethash key table)))))))
+      (match s p))))
+;;; problem 10
+(defun regular-expression-matching (s p)
+  (let ((cache (make-hash-table :test #'equal)))
+    (labels ((match (string pattern)
+               (let ((key (list string pattern)))
+                 (multiple-value-bind (value presentp) (gethash key cache)
+                   (cond (presentp value)
+                         (t (flet ((char-match ()
+                                     (let ((pattern-char (schar pattern 0)))
+                                       (or (char= pattern-char #\.)
+                                           (char= pattern-char (schar string 0))))))
+                              (setf (gethash key cache)
+                                    (cond ((string= pattern "")
+                                           (string= string ""))
+                                          ((string= string "")
+                                           (and (eql (position #\* pattern) 1)
+                                                (match string (subseq pattern 2))))
+                                          ((eql (position #\* pattern) 1)
+                                           (or (match string (subseq pattern 2))
+                                               (and (char-match)
+                                                    (match (subseq string 1) pattern))))
+                                          ((char-match)
+                                           (match (subseq string 1) (subseq pattern 1)))
+                                          (t nil))))
+                            (gethash key cache)))))))
       (match s p))))
