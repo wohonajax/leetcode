@@ -24,7 +24,6 @@
             until (= left-index right-index)
             maximize (calculate-area)))))
 ;;; problem 12
-;;; TODO: use math rather than just built-in functionality
 (defun integer-to-roman-algorithm (num)
   (let ((roman-values (list 1000 900 500 400 100 90 50 40 10 9 5 4 1))
         (roman-strings (list "M" "CM" "D" "CD" "C" "XC" "L" "XL" "X" "IX" "V" "IV" "I")))
@@ -37,3 +36,25 @@
 ;;; problem 12
 (defun integer-to-roman (num)
   (format nil "~@R" num))
+;;; problem 13
+(defun roman-to-integer (s)
+  (let ((table (make-hash-table)))
+    (setf (gethash #\I table) 1
+          (gethash #\V table) 5
+          (gethash #\X table) 10
+          (gethash #\L table) 50
+          (gethash #\C table) 100
+          (gethash #\D table) 500
+          (gethash #\M table) 1000)
+    (loop with final-index = (1- (length s))
+          ;; initialize with the last digit, which is never subtracted
+          with result = (gethash (schar s final-index) table)
+          for index below final-index
+          do (let* ((current (gethash (schar s index) table))
+                    (next (gethash (schar s (1+ index)) table)))
+               (if (< current next)
+                   ;; subtract the current digit from the running total
+                   ;; the next digit will be added in full, so it stays balanced
+                   (decf result current)
+                   (incf result current)))
+          finally (return result))))
