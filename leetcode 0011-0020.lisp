@@ -33,4 +33,4 @@
              )))))
 ;;; problem 12
 (defun integer-to-roman (num)
-  (format nil "~:@R" num))
+  (format nil "~@R" num))
