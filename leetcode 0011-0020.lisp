@@ -58,3 +58,13 @@
                    (decf result current)
                    (incf result current)))
           finally (return result))))
+;;; problem 14
+(defun longest-common-prefix (strs)
+  (with-output-to-string (str)
+    (loop named main
+          for index below (reduce #'min strs :key #'length)
+          do (loop with current = (schar (aref strs 0) index)
+                   for string across strs
+                   unless (char= (schar string index) current)
+                     do (return-from main)
+                   finally (princ current str)))))
