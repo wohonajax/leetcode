@@ -122,3 +122,25 @@
                                  (abs (- sum target)))
                         (setf result sum))))
         finally (return result)))
+;;; problem 17
+(defun letter-combinations-of-a-phone-number (digits)
+  (let ((table (make-hash-table)))
+    (setf (gethash #\2 table) (list #\a #\b #\c)
+          (gethash #\3 table) (list #\d #\e #\f)
+          (gethash #\4 table) (list #\g #\h #\i)
+          (gethash #\5 table) (list #\j #\k #\l)
+          (gethash #\6 table) (list #\m #\n #\o)
+          (gethash #\7 table) (list #\p #\q #\r #\s)
+          (gethash #\8 table) (list #\t #\u #\v)
+          (gethash #\9 table) (list #\w #\x #\y #\z))
+    (loop with results = (list "") ; initial value to concatenate on first iteration
+          with total-length = (length digits)
+          for digit across digits
+          ;; iteratively concatenate intermediate results with the next digit's characters
+          ;; results gets built up on successive iterations
+          do (loop with intermediate = '()
+                   for current in results
+                   do (loop for ch in (gethash digit table)
+                            do (push (concatenate 'string current (string ch)) intermediate))
+                   finally (setf results intermediate))
+          finally (return results))))
